@@ -3,14 +3,15 @@ from kivy.uix.widget import Widget
 from kivy.properties import NumericProperty
 from kivy.graphics.context_instructions import Color
 from kivy.graphics.vertex_instructions import Line
+from kivy.properties import Clock
 
 class MainWidget(Widget):
     perspectivePointX = NumericProperty(0)
     perspectivePointY = NumericProperty(0)
     V_num_lines = 6
-    V_spacing_lines = 0.1       #10% of screen width
+    V_spacing_lines = 0.2       #10% of screen width
     vertical_lines = []
-    H_num_lines = 100
+    H_num_lines = 20
     H_spacing_lines = 0.1       #10% of screen height
     horizontal_lines = []
 
@@ -18,6 +19,7 @@ class MainWidget(Widget):
         super(MainWidget, self).__init__(**kwargs)
         self.init_vertical_lines()
         self.init_horizontal_lines()
+        Clock.schedule_interval(self.update, 1.0/60)
     
     def on_parent(self, widget, parent):
         pass
@@ -55,8 +57,10 @@ class MainWidget(Widget):
         spacing = self.V_spacing_lines * self.width
         x_min = x_center_line + (offset*spacing)
         x_max = x_center_line - (offset*spacing)
+
+        spacing_y = self.H_spacing_lines*self.height
         for i in range(self.H_num_lines):
-            y_line = 0 + i*spacing
+            y_line = 0 + i*spacing_y
             x1, y1 = self.transform(x_min, y_line)
             x2, y2 = self.transform(x_max, y_line)
             self.horizontal_lines[i].points = [x1, y1, x2, y2]
@@ -79,12 +83,15 @@ class MainWidget(Widget):
         x_transformation = self.perspectivePointX + (diff_x * y_proportion)
         y_transformation = (1 - y_proportion) * self.perspectivePointY
         return int(x_transformation), int(y_transformation)
+    
+    def update(self, dt):
+        pass
 
 class GalaxyGame(App):
     pass
 
 def main():
     GalaxyGame().run()
-  
+
 if __name__=="__main__":
     main()
