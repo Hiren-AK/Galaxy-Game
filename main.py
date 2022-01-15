@@ -1,21 +1,26 @@
+from tracemalloc import start
+from turtle import speed
 from kivy.app import App
 from kivy.uix.widget import Widget
 from kivy.properties import NumericProperty
 from kivy.graphics.context_instructions import Color
 from kivy.graphics.vertex_instructions import Line
 from kivy.properties import Clock
+import time
 
 class MainWidget(Widget):
     perspectivePointX = NumericProperty(0)
     perspectivePointY = NumericProperty(0)
-    V_num_lines = 6
+    V_num_lines = 14
     V_spacing_lines = 0.2       #10% of screen width
     vertical_lines = []
-    H_num_lines = 8
+    H_num_lines = 10
     H_spacing_lines = 0.1       #10% of screen height
     horizontal_lines = []
     current_offset_y = 0
     speed = 1
+    start_time = time.time()
+    level = 20
 
     def __init__(self, **kwargs):
         super(MainWidget, self).__init__(**kwargs)
@@ -89,7 +94,12 @@ class MainWidget(Widget):
     def update(self, dt):
         self.update_horizontal_lines()
         self.update_verticle_lines()
-        self.current_offset_y += self.speed
+        time_factor = dt * 60
+        self.current_offset_y += self.speed * time_factor
+        if(int(time.time()-self.start_time) != 0 and int(time.time()-self.start_time)%self.level == 0 and self.speed < 5):
+            self.level *= 2
+            print(int(time.time()-self.start_time))
+            self.speed += 1
         spacing_y = self.H_spacing_lines * self.height
         if self.current_offset_y >= spacing_y:
             self.current_offset_y -= spacing_y
