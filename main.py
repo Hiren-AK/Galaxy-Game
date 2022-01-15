@@ -1,3 +1,7 @@
+from kivy.config import Config
+Config.set('graphics', 'width', '900')
+Config.set('graphics', 'height', '400')
+
 from tracemalloc import start
 from turtle import speed
 from kivy.app import App
@@ -15,12 +19,15 @@ class MainWidget(Widget):
     V_spacing_lines = 0.2       #10% of screen width
     vertical_lines = []
     H_num_lines = 10
-    H_spacing_lines = 0.1       #10% of screen height
+    H_spacing_lines = 0.2       #10% of screen height
     horizontal_lines = []
     current_offset_y = 0
     speed = 1
     start_time = time.time()
     level = 20
+    current_speed_x = 0
+    speed_x = 10
+    current_offset_x = 0
 
     def __init__(self, **kwargs):
         super(MainWidget, self).__init__(**kwargs)
@@ -45,8 +52,9 @@ class MainWidget(Widget):
         x_center_line = self.width/2
         offset = -int(self.V_num_lines/2)+0.5
         spacing = self.V_spacing_lines * self.width
+
         for i in range(self.V_num_lines):
-            x_line = int(x_center_line + offset * spacing)
+            x_line = int(x_center_line + offset * spacing + self.current_offset_x)
             x1, y1 = self.transform(x_line, 0)
             x2, y2 = self.transform(x_line, self.height)
             self.vertical_lines[i].points = [x1, y1, x2, y2]
@@ -62,8 +70,8 @@ class MainWidget(Widget):
         x_center_line = self.width/2
         offset = -int(self.V_num_lines/2)+0.5
         spacing = self.V_spacing_lines * self.width
-        x_min = x_center_line + (offset * spacing)
-        x_max = x_center_line - (offset * spacing)
+        x_min = x_center_line + (offset * spacing) + self.current_offset_x
+        x_max = x_center_line - (offset * spacing) + self.current_offset_x
 
         spacing_y = self.H_spacing_lines * self.height
         for i in range(self.H_num_lines):
@@ -87,22 +95,39 @@ class MainWidget(Widget):
         diff_x = x - self.perspectivePointX
         diff_y = self.perspectivePointY - y_transformation
         y_proportion = (diff_y/self.perspectivePointY)**3
+
         x_transformation = self.perspectivePointX + (diff_x * y_proportion)
         y_transformation = (1 - y_proportion) * self.perspectivePointY
+
         return int(x_transformation), int(y_transformation)
+    
+    def on_touch_down(self, touch):
+        if touch.x < self.width/2:
+            self.current_speed_x = self.speed_x
+        else:
+            self.current_speed_x = -self.speed_x
+
+    def on_touch_up(self, touch):
+        self.current_speed_x = 0
     
     def update(self, dt):
         self.update_horizontal_lines()
         self.update_verticle_lines()
         time_factor = dt * 60
         self.current_offset_y += self.speed * time_factor
+
         if(int(time.time()-self.start_time) != 0 and int(time.time()-self.start_time)%self.level == 0 and self.speed < 5):
             self.level *= 2
             print(int(time.time()-self.start_time))
             self.speed += 1
+            self.speed_x += 4
+
         spacing_y = self.H_spacing_lines * self.height
+
         if self.current_offset_y >= spacing_y:
             self.current_offset_y -= spacing_y
+        
+        self.current_offset_x += self.current_speed_x * time_factor
 
 class GalaxyGame(App):
     pass
