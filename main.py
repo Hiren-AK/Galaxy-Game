@@ -12,6 +12,7 @@ from kivy.graphics.vertex_instructions import Line
 from kivy.core.window import Window
 from kivy.properties import Clock
 from kivy import platform
+from kivy.graphics.vertex_instructions import Quad
 import time
 
 class MainWidget(Widget):
@@ -31,10 +32,15 @@ class MainWidget(Widget):
     speed_x = 10
     current_offset_x = 0
 
+    tile = None
+    tile_x = 1
+    tile_y = 2
+
     def __init__(self, **kwargs):
         super(MainWidget, self).__init__(**kwargs)
         self.init_vertical_lines()
         self.init_horizontal_lines()
+        self.init_tiles()
 
         if self.touch_or_key():
             self._keyboard = Window.request_keyboard(self.keyboard_closed, self)
@@ -60,11 +66,44 @@ class MainWidget(Widget):
         self.update_verticle_lines()
         self.update_horizontal_lines()
 
+    def init_tiles(self):
+        with self.canvas:
+            Color(1, 1, 1)
+            self.tile = Quad()
+
     def init_vertical_lines(self):
         with self.canvas:
             Color(1, 1, 1)
             for i in range(0, self.V_num_lines):
                 self.vertical_lines.append(Line())
+
+    def get_line_x(self, index):
+        x_center_line = self.perspectivePointX
+        offset = -int(self.V_num_lines/2)+0.5
+        spacing = index - 0.5
+        line_x = x_center_line + (offset * spacing) + self.current_offset_x
+        return line_x
+    
+    def get_line_y(self, index):
+        spacing_y = self.H_spacing_lines * self.height
+        y_line = index * spacing_y - self.current_offset_y
+        return y_line
+
+    def get_tile_coordinates(self, tile_x, tile_y):
+        x = self.get_line_x(tile_x)
+        y = self.get_line_y(tile_y)
+        return x, y
+
+    def update_tiles(self):
+        x_min, y_min = self.get_tile_coordinates(self.tile_x, self.tile_y)
+        x_max, y_max = self.get_tile_coordinates(self.tile_x + 1, self.tile_y + 1)
+        
+        x1, y1  = self.transform(x_min, y_min)
+        x2, y2 = self.transform(x_min, y_max)
+        x3, y3 = self.transform(x_max, y_max)
+        x4, y4 = self.transform(x_max, y_min)
+
+        self.tile.points = [x1, y1, x2, y2, x3, y3, x4, y4]
 
     def update_verticle_lines(self):
         x_center_line = self.width/2
@@ -93,17 +132,13 @@ class MainWidget(Widget):
 
         spacing_y = self.H_spacing_lines * self.height
         for i in range(self.H_num_lines):
-            y_line = i*spacing_y - self.current_offset_y
+            y_line = (i * spacing_y) - self.current_offset_y
             x1, y1 = self.transform(x_min, y_line)
             x2, y2 = self.transform(x_max, y_line)
             self.horizontal_lines[i].points = [x1, y1, x2, y2]
 
     def transform(self, x, y):
-        #return self.transform2D(x, y)
         return self.transform_perspective(x, y)
-
-    def transform2D(self, x, y):
-        return x, y
 
     def transform_perspective(self, x, y):
         y_transformation = (y * self.perspectivePointY)/self.height
@@ -143,6 +178,7 @@ class MainWidget(Widget):
     def update(self, dt):
         self.update_horizontal_lines()
         self.update_verticle_lines()
+        self.update_tiles()
         time_factor = dt * 60
         self.current_offset_y += self.speed * time_factor
 
