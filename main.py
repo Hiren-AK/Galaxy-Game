@@ -10,7 +10,7 @@ class MainWidget(Widget):
     V_num_lines = 6
     V_spacing_lines = 0.1       #10% of screen width
     vertical_lines = []
-    H_num_lines = 9
+    H_num_lines = 100
     H_spacing_lines = 0.1       #10% of screen height
     horizontal_lines = []
 
@@ -75,8 +75,9 @@ class MainWidget(Widget):
 
         diff_x = x - self.perspectivePointX
         diff_y = self.perspectivePointY - y_transformation
-        y_proportion = diff_y/self.perspectivePointY
+        y_proportion = (diff_y/self.perspectivePointY)**3
         x_transformation = self.perspectivePointX + (diff_x * y_proportion)
+        y_transformation = (1 - y_proportion) * self.perspectivePointY
         return int(x_transformation), int(y_transformation)
 
 class GalaxyGame(App):
