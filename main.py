@@ -11,9 +11,11 @@ class MainWidget(Widget):
     V_num_lines = 6
     V_spacing_lines = 0.2       #10% of screen width
     vertical_lines = []
-    H_num_lines = 20
+    H_num_lines = 8
     H_spacing_lines = 0.1       #10% of screen height
     horizontal_lines = []
+    current_offset_y = 0
+    speed = 1
 
     def __init__(self, **kwargs):
         super(MainWidget, self).__init__(**kwargs)
@@ -39,7 +41,7 @@ class MainWidget(Widget):
         offset = -int(self.V_num_lines/2)+0.5
         spacing = self.V_spacing_lines * self.width
         for i in range(self.V_num_lines):
-            x_line = int(x_center_line + offset*spacing)
+            x_line = int(x_center_line + offset * spacing)
             x1, y1 = self.transform(x_line, 0)
             x2, y2 = self.transform(x_line, self.height)
             self.vertical_lines[i].points = [x1, y1, x2, y2]
@@ -55,12 +57,12 @@ class MainWidget(Widget):
         x_center_line = self.width/2
         offset = -int(self.V_num_lines/2)+0.5
         spacing = self.V_spacing_lines * self.width
-        x_min = x_center_line + (offset*spacing)
-        x_max = x_center_line - (offset*spacing)
+        x_min = x_center_line + (offset * spacing)
+        x_max = x_center_line - (offset * spacing)
 
-        spacing_y = self.H_spacing_lines*self.height
+        spacing_y = self.H_spacing_lines * self.height
         for i in range(self.H_num_lines):
-            y_line = 0 + i*spacing_y
+            y_line = i*spacing_y - self.current_offset_y
             x1, y1 = self.transform(x_min, y_line)
             x2, y2 = self.transform(x_max, y_line)
             self.horizontal_lines[i].points = [x1, y1, x2, y2]
@@ -85,7 +87,12 @@ class MainWidget(Widget):
         return int(x_transformation), int(y_transformation)
     
     def update(self, dt):
-        pass
+        self.update_horizontal_lines()
+        self.update_verticle_lines()
+        self.current_offset_y += self.speed
+        spacing_y = self.H_spacing_lines * self.height
+        if self.current_offset_y >= spacing_y:
+            self.current_offset_y -= spacing_y
 
 class GalaxyGame(App):
     pass
