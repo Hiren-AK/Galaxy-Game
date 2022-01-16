@@ -7,10 +7,15 @@
         Rectangle:
             size: self.size
     Label:
+        font_size: dp(40)
+        font_name: 'Resources/fonts/Sackers-Gothic-Std-Light.ttf'
         text: root.parent.menu_title
         pos_hint: {"center_x": 0.5, "center_y": 0.6}
     Button:
+        font_size: dp(20)
+        font_name: 'Resources/fonts/Eurostile.ttf'
         text: root.parent.menu_button_text
-        pos_hint: {"center_x": 0.5, "center_y": 0.4}
-        size_hint: 0.2, 0.1
+        pos_hint: {"center_x": 0.5, "center_y": 0.3}
+        size_hint: 0.2, 0.125
         on_press: root.parent.on_menu_button_pressed()
+        background_color: 0.05, 0.71, 1, 1
