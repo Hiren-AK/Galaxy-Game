@@ -25,6 +25,7 @@ class MainWidget(Widget):
     H_spacing_lines = 0.2       #10% of screen height
     horizontal_lines = []
     current_offset_y = 0
+    current_y_loop = 0
     speed = 1
     start_time = time.time()
     level = 20
@@ -79,8 +80,8 @@ class MainWidget(Widget):
 
     def get_line_x(self, index):
         x_center_line = self.perspectivePointX
-        offset = -int(self.V_num_lines/2)+0.5
-        spacing = index - 0.5
+        offset = index - 0.5
+        spacing = self.V_spacing_lines * self.width
         line_x = x_center_line + (offset * spacing) + self.current_offset_x
         return line_x
     
@@ -90,6 +91,7 @@ class MainWidget(Widget):
         return y_line
 
     def get_tile_coordinates(self, tile_x, tile_y):
+        tile_y = tile_y - self.current_y_loop
         x = self.get_line_x(tile_x)
         y = self.get_line_y(tile_y)
         return x, y
@@ -192,6 +194,7 @@ class MainWidget(Widget):
 
         if self.current_offset_y >= spacing_y:
             self.current_offset_y -= spacing_y
+            self.current_y_loop += 1
         
         self.current_offset_x += self.current_speed_x * time_factor
 
