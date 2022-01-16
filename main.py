@@ -66,6 +66,18 @@ class MainWidget(RelativeLayout):
             self._keyboard.bind(on_key_up = self.on_keyboard_up)
 
         Clock.schedule_interval(self.update, 1.0/60)
+    
+    def restart_game(self):
+        self.speed = 4
+        self.speed_x = 10
+        self.current_offset_y = 0
+        self.current_offset_x = 0
+        self.current_y_loop = 0
+        self.tile_coordinates = []
+        self.tile_coordinates = []
+        self.start_tiles()
+        self.tile_coordinate_generator()
+        self.game_over = False
 
     def keyboard_closed(self):
         self._keyboard.unbind(on_key_down = self.on_keyboard_down)
@@ -308,9 +320,11 @@ class MainWidget(RelativeLayout):
 
         if not self.check_collison_tiles() and not self.game_over:
             self.game_over = True
+            self.menu_widget.opacity = 1
     
     def on_menu_button_pressed(self):
         print("button") 
+        self.restart_game()
         self.game_started = True  
         self.menu_widget.opacity = 0
 
