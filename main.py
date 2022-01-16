@@ -33,10 +33,12 @@ class MainWidget(Widget):
     current_speed_x = 0
     speed_x = 10
     current_offset_x = 0
+
     space_ship = None
     ship_width = 0.07
     ship_height = 0.05
     ship_gap = 0.05
+    ship_coordinates = [(0, 0), (0, 0), (0, 0)]
 
     num_tiles = 13
     tiles = []
@@ -79,16 +81,41 @@ class MainWidget(Widget):
         base_y = self.ship_gap * self.height
         half_ship_width = (self.ship_width * self.width) / 2
         ship_height = self.ship_height * self.height
-
+        
         x1, y1 = self.transform(center_x - half_ship_width, base_y)
         x2, y2 = self.transform(center_x, base_y + ship_height)
         x3, y3 = self.transform(center_x + half_ship_width, base_y)
+
+        self.ship_coordinates[0] = (x1, y1)
+        self.ship_coordinates[1] = (x2, y2)
+        self.ship_coordinates[2] = (x3, y3)
 
         self.space_ship.points = [x1, y1, x2, y2, x3, y3]
 
     def on_size(self, *args):
         self.update_verticle_lines()
         self.update_horizontal_lines()
+    
+    def check_collison_tiles(self):
+        for i in range(0, len(self.tile_coordinates)):
+            x_tile, y_tile = self.tile_coordinates[i]
+            if y_tile > self.current_y_loop + 1:
+                return False
+            if self.check_collision(x_tile, y_tile):
+                return True
+        
+        return False
+
+    def check_collision(self, tile_x, tile_y):
+        x_min, y_min = self.get_tile_coordinates(tile_x, tile_y)
+        x_max, y_max = self.get_tile_coordinates(tile_x + 1, tile_y + 1)
+
+        for i in range(0, 3):
+            x_coor, y_coor = self.ship_coordinates[i]
+            if (x_coor >= x_min and x_coor <= x_max) and (y_coor >= y_min and y_coor <= y_max):
+                return True
+        
+        return False
 
     def init_tiles(self):
         with self.canvas:
@@ -267,6 +294,9 @@ class MainWidget(Widget):
         
         speed_x = (self.current_speed_x * self.width)/1000
         self.current_offset_x += speed_x * time_factor
+
+        if not self.check_collison_tiles():
+            print("GAME OVER")
 
 class GalaxyGame(App):
     pass
