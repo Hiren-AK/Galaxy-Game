@@ -1,9 +1,8 @@
+from http.client import ImproperConnectionState
 from kivy.config import Config
 Config.set('graphics', 'width', '900')
 Config.set('graphics', 'height', '400')
 
-from tracemalloc import start
-from turtle import speed
 from kivy.app import App
 from kivy.uix.widget import Widget
 from kivy.properties import NumericProperty
@@ -43,6 +42,8 @@ class MainWidget(Widget):
     num_tiles = 13
     tiles = []
     tile_coordinates = []
+
+    game_over = False
 
     def __init__(self, **kwargs):
         super(MainWidget, self).__init__(**kwargs)
@@ -277,26 +278,28 @@ class MainWidget(Widget):
         self.update_tiles()
         self.update_space_ship()
         time_factor = dt * 60
-        speed_y = (self.speed * self.height)/1000
-        self.current_offset_y += speed_y * time_factor
 
-        if((time.time() - self.start_time) > 15 and self.speed < 5):
-            self.start_time = time.time()
-            self.speed += 1
-            self.speed_x += 1
+        if not self.game_over:
+            speed_y = (self.speed * self.height)/1000
+            self.current_offset_y += speed_y * time_factor
 
-        spacing_y = self.H_spacing_lines * self.height
+            if((time.time() - self.start_time) > 15 and self.speed < 5):
+                self.start_time = time.time()
+                self.speed += 1
+                self.speed_x += 1
 
-        if self.current_offset_y >= spacing_y:
-            self.current_offset_y -= spacing_y
-            self.current_y_loop += 1
-            self.tile_coordinate_generator()
+            spacing_y = self.H_spacing_lines * self.height
+
+            while self.current_offset_y >= spacing_y:
+                self.current_offset_y -= spacing_y
+                self.current_y_loop += 1
+                self.tile_coordinate_generator()
         
-        speed_x = (self.current_speed_x * self.width)/1000
-        self.current_offset_x += speed_x * time_factor
+            speed_x = (self.current_speed_x * self.width)/1000
+            self.current_offset_x += speed_x * time_factor
 
-        if not self.check_collison_tiles():
-            print("GAME OVER")
+        if not self.check_collison_tiles() and not self.game_over:
+            self.game_over = True
 
 class GalaxyGame(App):
     pass
