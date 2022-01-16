@@ -13,6 +13,7 @@ from kivy.graphics.vertex_instructions import Quad
 from kivy.graphics.vertex_instructions import Triangle
 from kivy.lang import Builder
 from kivy.properties import NumericProperty, ObjectProperty, StringProperty
+from kivy.core.audio import SoundLoader
 from random import randint
 import time
 
@@ -52,8 +53,16 @@ class MainWidget(RelativeLayout):
     game_over = False
     game_started = False
 
+    begin_audio = None
+    galaxy_audio = None
+    gameover_impact_audio = None
+    gameover_audio = None
+    music_audio = None
+    restart_audio = None
+
     def __init__(self, **kwargs):
         super(MainWidget, self).__init__(**kwargs)
+        self.init_audio()
         self.init_vertical_lines()
         self.init_horizontal_lines()
         self.start_tiles()
@@ -68,6 +77,7 @@ class MainWidget(RelativeLayout):
             self._keyboard.bind(on_key_up = self.on_keyboard_up)
 
         Clock.schedule_interval(self.update, 1.0/60)
+        self.galaxy_audio.play()
     
     def restart_game(self):
         self.speed = 4
@@ -96,7 +106,22 @@ class MainWidget(RelativeLayout):
         with self.canvas:
             Color(0, 0, 0)
             self.space_ship = Triangle()
-    
+
+    def init_audio(self):
+        self.begin_audio = SoundLoader.load("Resources/audio/begin.wav")
+        self.galaxy_audio = SoundLoader.load("Resources/audio/galaxy.wav")
+        self.gameover_impact_audio = SoundLoader.load("Resources/audio/gameover_impact.wav")
+        self.gameover_audio = SoundLoader.load("Resources/audio/gameover_voice.wav")
+        self.music_audio = SoundLoader.load("Resources/audio/music1.wav")
+        self.restart_audio = SoundLoader.load("Resources/audio/restart.wav")
+
+        self.music_audio.volume = 1
+        self.galaxy_audio.volume = 0.2
+        self.gameover_audio.volume = 0.2
+        self.gameover_impact_audio.volume = 0.4
+        self.restart_audio.volume = 0.2
+        self.begin_audio.volume = 0.2
+
     def update_space_ship(self):
         center_x = self.width/2
         base_y = self.ship_gap * self.height
@@ -324,13 +349,20 @@ class MainWidget(RelativeLayout):
 
         if not self.check_collison_tiles() and not self.game_over:
             self.game_over = True
+            self.menu_title = "G A M E    O V E R"
+            self.menu_button_text = "RESTART"
             self.menu_widget.opacity = 1
+            self.music_audio.stop()
+            self.gameover_impact_audio.play()
+            self.gameover_audio.play()
     
     def on_menu_button_pressed(self):
-        print("button") 
+        if self.game_over:
+            self.restart_audio.play()
+        else:
+            self.begin_audio.play()
+        self.music_audio.play()
         self.restart_game()
-        self.menu_title = "G A M E    O V E R"
-        self.menu_button_text = "RESTART"
         self.game_started = True  
         self.menu_widget.opacity = 0
 
