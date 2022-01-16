@@ -28,7 +28,7 @@ class MainWidget(Widget):
     horizontal_lines = []
     current_offset_y = 0
     current_y_loop = 0
-    speed = 1
+    speed = 4
     start_time = None
     current_speed_x = 0
     speed_x = 10
@@ -250,12 +250,13 @@ class MainWidget(Widget):
         self.update_tiles()
         self.update_space_ship()
         time_factor = dt * 60
-        self.current_offset_y += self.speed * time_factor
+        speed_y = (self.speed * self.height)/1000
+        self.current_offset_y += speed_y * time_factor
 
-        if((time.time() - self.start_time) > 15 and self.speed < 8):
+        if((time.time() - self.start_time) > 15 and self.speed < 5):
             self.start_time = time.time()
             self.speed += 1
-            self.speed_x += 4
+            self.speed_x += 1
 
         spacing_y = self.H_spacing_lines * self.height
 
@@ -264,7 +265,8 @@ class MainWidget(Widget):
             self.current_y_loop += 1
             self.tile_coordinate_generator()
         
-        self.current_offset_x += self.current_speed_x * time_factor
+        speed_x = (self.current_speed_x * self.width)/1000
+        self.current_offset_x += speed_x * time_factor
 
 class GalaxyGame(App):
     pass
