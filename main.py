@@ -22,6 +22,7 @@ class MainWidget(RelativeLayout):
     menu_widget = ObjectProperty()
     menu_title = StringProperty("G  A  L  A  X  Y     G  A  M  E")
     menu_button_text = StringProperty("START")
+    score_text = StringProperty()
     perspectivePointX = NumericProperty(0)
     perspectivePointY = NumericProperty(0)
     V_num_lines = 14
@@ -74,6 +75,7 @@ class MainWidget(RelativeLayout):
         self.current_offset_y = 0
         self.current_offset_x = 0
         self.current_y_loop = 0
+        self.score_text = "Score: " + str(self.current_y_loop)
         self.tile_coordinates = []
         self.tile_coordinates = []
         self.start_tiles()
@@ -314,6 +316,7 @@ class MainWidget(RelativeLayout):
             while self.current_offset_y >= spacing_y:
                 self.current_offset_y -= spacing_y
                 self.current_y_loop += 1
+                self.score_text = "Score: " + str(self.current_y_loop)
                 self.tile_coordinate_generator()
         
             speed_x = (self.current_speed_x * self.width)/1000
