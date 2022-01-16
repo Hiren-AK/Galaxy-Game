@@ -4,7 +4,6 @@ Config.set('graphics', 'height', '400')
 
 from kivy.app import App
 from kivy.uix.relativelayout import RelativeLayout
-from kivy.properties import NumericProperty
 from kivy.graphics.context_instructions import Color
 from kivy.graphics.vertex_instructions import Line
 from kivy.core.window import Window
@@ -13,7 +12,7 @@ from kivy import platform
 from kivy.graphics.vertex_instructions import Quad
 from kivy.graphics.vertex_instructions import Triangle
 from kivy.lang import Builder
-from kivy.properties import ObjectProperty
+from kivy.properties import NumericProperty, ObjectProperty, StringProperty
 from random import randint
 import time
 
@@ -21,6 +20,8 @@ Builder.load_file("menu.kv")
 
 class MainWidget(RelativeLayout):
     menu_widget = ObjectProperty()
+    menu_title = StringProperty("G  A  L  A  X  Y     G  A  M  E")
+    menu_button_text = StringProperty("START")
     perspectivePointX = NumericProperty(0)
     perspectivePointY = NumericProperty(0)
     V_num_lines = 14
@@ -325,6 +326,8 @@ class MainWidget(RelativeLayout):
     def on_menu_button_pressed(self):
         print("button") 
         self.restart_game()
+        self.menu_title = "G A M E    O V E R"
+        self.menu_button_text = "RESTART"
         self.game_started = True  
         self.menu_widget.opacity = 0
 
