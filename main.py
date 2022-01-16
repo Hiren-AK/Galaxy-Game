@@ -1,4 +1,3 @@
-from re import S
 from kivy.config import Config
 Config.set('graphics', 'width', '900')
 Config.set('graphics', 'height', '400')
@@ -14,6 +13,7 @@ from kivy.core.window import Window
 from kivy.properties import Clock
 from kivy import platform
 from kivy.graphics.vertex_instructions import Quad
+from random import randint
 import time
 
 class MainWidget(Widget):
@@ -27,14 +27,14 @@ class MainWidget(Widget):
     horizontal_lines = []
     current_offset_y = 0
     current_y_loop = 0
-    speed = 1
+    speed = 4
     start_time = time.time()
     level = 20
     current_speed_x = 0
     speed_x = 10
     current_offset_x = 0
 
-    num_tiles = 4
+    num_tiles = 13
     tiles = []
     tile_coordinates = []
 
@@ -76,6 +76,7 @@ class MainWidget(Widget):
                 self.tiles.append(Quad())
 
     def tile_coordinate_generator(self):
+        last_x = 0
         last_y = 0
         for i in range(len(self.tile_coordinates)-1, -1, -1):
             if self.tile_coordinates[i][1] < self.current_y_loop:
@@ -83,11 +84,23 @@ class MainWidget(Widget):
 
         if len(self.tile_coordinates) > 0:
             last_coordinates = self.tile_coordinates[-1]
+            last_x = last_coordinates[0]
             last_y = last_coordinates[1] + 1
 
 
         for i in range(len(self.tile_coordinates)-1, self.num_tiles):
-            self.tile_coordinates.append((0, last_y))
+            rand = randint(-1, 1)
+            self.tile_coordinates.append((last_x, last_y))
+            if rand == 1:
+                last_x += 1
+                self.tile_coordinates.append((last_x, last_y))
+                last_y += 1
+                self.tile_coordinates.append((last_x, last_y))
+            elif rand == -1:
+                last_x -= 1
+                self.tile_coordinates.append((last_x, last_y))
+                last_y += 1
+                self.tile_coordinates.append((last_x, last_y))
             last_y += 1
 
     def init_vertical_lines(self):
