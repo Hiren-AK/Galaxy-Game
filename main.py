@@ -5,14 +5,11 @@ Config.set('graphics', 'height', '400')
 from kivy.app import App
 from kivy.uix.relativelayout import RelativeLayout
 from kivy.graphics.context_instructions import Color
-from kivy.graphics.vertex_instructions import Line
+from kivy.graphics.vertex_instructions import Line, Quad, Triangle
 from kivy.core.window import Window
-from kivy.properties import Clock
 from kivy import platform
-from kivy.graphics.vertex_instructions import Quad
-from kivy.graphics.vertex_instructions import Triangle
 from kivy.lang import Builder
-from kivy.properties import NumericProperty, ObjectProperty, StringProperty
+from kivy.properties import NumericProperty, ObjectProperty, StringProperty, Clock
 from kivy.core.audio import SoundLoader
 from random import randint
 import time
