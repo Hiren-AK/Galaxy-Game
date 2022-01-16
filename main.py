@@ -1,3 +1,4 @@
+from re import S
 from kivy.config import Config
 Config.set('graphics', 'width', '900')
 Config.set('graphics', 'height', '400')
@@ -33,15 +34,16 @@ class MainWidget(Widget):
     speed_x = 10
     current_offset_x = 0
 
-    tile = None
-    tile_x = 1
-    tile_y = 2
+    num_tiles = 4
+    tiles = []
+    tile_coordinates = []
 
     def __init__(self, **kwargs):
         super(MainWidget, self).__init__(**kwargs)
         self.init_vertical_lines()
         self.init_horizontal_lines()
         self.init_tiles()
+        self.tile_coordinate_generator()
 
         if self.touch_or_key():
             self._keyboard = Window.request_keyboard(self.keyboard_closed, self)
@@ -70,7 +72,23 @@ class MainWidget(Widget):
     def init_tiles(self):
         with self.canvas:
             Color(1, 1, 1)
-            self.tile = Quad()
+            for i in range(0, self.num_tiles):
+                self.tiles.append(Quad())
+
+    def tile_coordinate_generator(self):
+        last_y = 0
+        for i in range(len(self.tile_coordinates)-1, -1, -1):
+            if self.tile_coordinates[i][1] < self.current_y_loop:
+                del self.tile_coordinates[i]
+
+        if len(self.tile_coordinates) > 0:
+            last_coordinates = self.tile_coordinates[-1]
+            last_y = last_coordinates[1] + 1
+
+
+        for i in range(len(self.tile_coordinates)-1, self.num_tiles):
+            self.tile_coordinates.append((0, last_y))
+            last_y += 1
 
     def init_vertical_lines(self):
         with self.canvas:
@@ -97,15 +115,18 @@ class MainWidget(Widget):
         return x, y
 
     def update_tiles(self):
-        x_min, y_min = self.get_tile_coordinates(self.tile_x, self.tile_y)
-        x_max, y_max = self.get_tile_coordinates(self.tile_x + 1, self.tile_y + 1)
-        
-        x1, y1  = self.transform(x_min, y_min)
-        x2, y2 = self.transform(x_min, y_max)
-        x3, y3 = self.transform(x_max, y_max)
-        x4, y4 = self.transform(x_max, y_min)
+        for i in range(0, self.num_tiles):
+            tile = self.tiles[i]
+            tile_coordinate = self.tile_coordinates[i]
+            x_min, y_min = self.get_tile_coordinates(tile_coordinate[0], tile_coordinate[1])
+            x_max, y_max = self.get_tile_coordinates(tile_coordinate[0] + 1, tile_coordinate[1] + 1)
+            
+            x1, y1  = self.transform(x_min, y_min)
+            x2, y2 = self.transform(x_min, y_max)
+            x3, y3 = self.transform(x_max, y_max)
+            x4, y4 = self.transform(x_max, y_min)
 
-        self.tile.points = [x1, y1, x2, y2, x3, y3, x4, y4]
+            tile.points = [x1, y1, x2, y2, x3, y3, x4, y4]
 
     def update_verticle_lines(self):
         x_center_line = self.width/2
@@ -195,6 +216,7 @@ class MainWidget(Widget):
         if self.current_offset_y >= spacing_y:
             self.current_offset_y -= spacing_y
             self.current_y_loop += 1
+            self.tile_coordinate_generator()
         
         self.current_offset_x += self.current_speed_x * time_factor
 
