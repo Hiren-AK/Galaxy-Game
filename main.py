@@ -20,16 +20,15 @@ class MainWidget(Widget):
     perspectivePointX = NumericProperty(0)
     perspectivePointY = NumericProperty(0)
     V_num_lines = 14
-    V_spacing_lines = 0.2       #10% of screen width
+    V_spacing_lines = 0.3       #10% of screen width
     vertical_lines = []
     H_num_lines = 10
     H_spacing_lines = 0.2       #10% of screen height
     horizontal_lines = []
     current_offset_y = 0
     current_y_loop = 0
-    speed = 4
-    start_time = time.time()
-    level = 20
+    speed = 1
+    start_time = None
     current_speed_x = 0
     speed_x = 10
     current_offset_x = 0
@@ -44,6 +43,7 @@ class MainWidget(Widget):
         self.init_horizontal_lines()
         self.init_tiles()
         self.tile_coordinate_generator()
+        self.start_time = time.time()
 
         if self.touch_or_key():
             self._keyboard = Window.request_keyboard(self.keyboard_closed, self)
@@ -90,6 +90,14 @@ class MainWidget(Widget):
 
         for i in range(len(self.tile_coordinates)-1, self.num_tiles):
             rand = randint(-1, 1)
+            start_index = -int(self.V_num_lines/2) + 1
+            end_index = start_index + self.V_num_lines - 2
+
+            if last_x <= start_index:
+                rand = 1
+            elif last_x >= end_index:
+                rand = -1
+
             self.tile_coordinates.append((last_x, last_y))
             if rand == 1:
                 last_x += 1
@@ -218,9 +226,8 @@ class MainWidget(Widget):
         time_factor = dt * 60
         self.current_offset_y += self.speed * time_factor
 
-        if(int(time.time()-self.start_time) != 0 and int(time.time()-self.start_time)%self.level == 0 and self.speed < 5):
-            self.level *= 2
-            print(int(time.time()-self.start_time))
+        if((time.time() - self.start_time) > 15 and self.speed < 8):
+            self.start_time = time.time()
             self.speed += 1
             self.speed_x += 4
 
