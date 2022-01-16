@@ -1,10 +1,9 @@
-from http.client import ImproperConnectionState
 from kivy.config import Config
 Config.set('graphics', 'width', '900')
 Config.set('graphics', 'height', '400')
 
 from kivy.app import App
-from kivy.uix.widget import Widget
+from kivy.uix.relativelayout import RelativeLayout
 from kivy.properties import NumericProperty
 from kivy.graphics.context_instructions import Color
 from kivy.graphics.vertex_instructions import Line
@@ -13,10 +12,15 @@ from kivy.properties import Clock
 from kivy import platform
 from kivy.graphics.vertex_instructions import Quad
 from kivy.graphics.vertex_instructions import Triangle
+from kivy.lang import Builder
+from kivy.properties import ObjectProperty
 from random import randint
 import time
 
-class MainWidget(Widget):
+Builder.load_file("menu.kv")
+
+class MainWidget(RelativeLayout):
+    menu_widget = ObjectProperty()
     perspectivePointX = NumericProperty(0)
     perspectivePointY = NumericProperty(0)
     V_num_lines = 14
@@ -44,6 +48,7 @@ class MainWidget(Widget):
     tile_coordinates = []
 
     game_over = False
+    game_started = False
 
     def __init__(self, **kwargs):
         super(MainWidget, self).__init__(**kwargs)
@@ -264,10 +269,13 @@ class MainWidget(Widget):
         return True
     
     def on_touch_down(self, touch):
-        if touch.x < self.width/2:
-            self.current_speed_x = self.speed_x
-        else:
-            self.current_speed_x = -self.speed_x
+        if not self.game_over and self.game_started:
+            if touch.x < self.width/2:
+                self.current_speed_x = self.speed_x
+            else:
+                self.current_speed_x = -self.speed_x
+        
+        return super(RelativeLayout, self).on_touch_down(touch)
 
     def on_touch_up(self, touch):
         self.current_speed_x = 0
@@ -279,7 +287,7 @@ class MainWidget(Widget):
         self.update_space_ship()
         time_factor = dt * 60
 
-        if not self.game_over:
+        if not self.game_over and self.game_started:
             speed_y = (self.speed * self.height)/1000
             self.current_offset_y += speed_y * time_factor
 
@@ -300,6 +308,11 @@ class MainWidget(Widget):
 
         if not self.check_collison_tiles() and not self.game_over:
             self.game_over = True
+    
+    def on_menu_button_pressed(self):
+        print("button") 
+        self.game_started = True  
+        self.menu_widget.opacity = 0
 
 class GalaxyGame(App):
     pass
