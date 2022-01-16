@@ -13,6 +13,7 @@ from kivy.core.window import Window
 from kivy.properties import Clock
 from kivy import platform
 from kivy.graphics.vertex_instructions import Quad
+from kivy.graphics.vertex_instructions import Triangle
 from random import randint
 import time
 
@@ -20,10 +21,10 @@ class MainWidget(Widget):
     perspectivePointX = NumericProperty(0)
     perspectivePointY = NumericProperty(0)
     V_num_lines = 14
-    V_spacing_lines = 0.3       #10% of screen width
+    V_spacing_lines = 0.3       #30% of screen width
     vertical_lines = []
     H_num_lines = 10
-    H_spacing_lines = 0.2       #10% of screen height
+    H_spacing_lines = 0.2       #20% of screen height
     horizontal_lines = []
     current_offset_y = 0
     current_y_loop = 0
@@ -32,6 +33,10 @@ class MainWidget(Widget):
     current_speed_x = 0
     speed_x = 10
     current_offset_x = 0
+    space_ship = None
+    ship_width = 0.07
+    ship_height = 0.05
+    ship_gap = 0.05
 
     num_tiles = 13
     tiles = []
@@ -41,8 +46,9 @@ class MainWidget(Widget):
         super(MainWidget, self).__init__(**kwargs)
         self.init_vertical_lines()
         self.init_horizontal_lines()
-        self.init_tiles()
         self.start_tiles()
+        self.init_tiles()
+        self.init_space_ship()
         self.tile_coordinate_generator()
         self.start_time = time.time()
 
@@ -63,8 +69,22 @@ class MainWidget(Widget):
             return True
         return False
 
-    def on_parent(self, widget, parent):
-        pass
+    def init_space_ship(self):
+        with self.canvas:
+            Color(0, 0, 0)
+            self.space_ship = Triangle()
+    
+    def update_space_ship(self):
+        center_x = self.width/2
+        base_y = self.ship_gap * self.height
+        half_ship_width = (self.ship_width * self.width) / 2
+        ship_height = self.ship_height * self.height
+
+        x1, y1 = self.transform(center_x - half_ship_width, base_y)
+        x2, y2 = self.transform(center_x, base_y + ship_height)
+        x3, y3 = self.transform(center_x + half_ship_width, base_y)
+
+        self.space_ship.points = [x1, y1, x2, y2, x3, y3]
 
     def on_size(self, *args):
         self.update_verticle_lines()
@@ -228,6 +248,7 @@ class MainWidget(Widget):
         self.update_horizontal_lines()
         self.update_verticle_lines()
         self.update_tiles()
+        self.update_space_ship()
         time_factor = dt * 60
         self.current_offset_y += self.speed * time_factor
 
