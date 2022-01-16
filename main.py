@@ -42,6 +42,7 @@ class MainWidget(Widget):
         self.init_vertical_lines()
         self.init_horizontal_lines()
         self.init_tiles()
+        self.start_tiles()
         self.tile_coordinate_generator()
         self.start_time = time.time()
 
@@ -74,6 +75,10 @@ class MainWidget(Widget):
             Color(1, 1, 1)
             for i in range(0, self.num_tiles):
                 self.tiles.append(Quad())
+    
+    def start_tiles(self):
+        for i in range(0, 4):
+            self.tile_coordinates.append((0, i))
 
     def tile_coordinate_generator(self):
         last_x = 0
